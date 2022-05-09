@@ -1,0 +1,10 @@
+﻿global using System;
+global using System.Collections.Generic;
+global using System.Linq;
+global using System.Text;
+global using System.Threading.Tasks;
+global using System.Runtime.InteropServices;
+global using Microsoft.Win32;
+global using System.Xml;
+global using System.Diagnostics;
+global using System.ServiceProcess;

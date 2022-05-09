@@ -1,1 +1,4 @@
-SPPClient
+#SPPClient
+SPPClient 通过从底层slc.dll,setupapi.dll,hid.dll等底层api直接实现HWID的获取，不再验证当前激活状态
+本程序仅供科学研究之用途，请在下载后72h内自行删除，本项目为合法的逆向工程，不涉及任何微软激活相关代码
+部分代码参考HwidApi

@@ -377,7 +377,7 @@ internal class Program
                 if (sc.Status == ServiceControllerStatus.Running)
                 {
                     sc.Stop();
-                    sc.WaitForStatus(ServiceControllerStatus.Stopped, new(0, 1, 0));
+                    sc.WaitForStatus(ServiceControllerStatus.Stopped, new(1, 0, 0));
                 Console.WriteLine("正在停止服务");
             } 
             sc.Close();
@@ -423,7 +423,7 @@ internal class Program
                 if (sc.Status == ServiceControllerStatus.Stopped)
                 {
                     sc.Start();
-                    sc.WaitForStatus(ServiceControllerStatus.Running,new(0,1,0));
+                    sc.WaitForStatus(ServiceControllerStatus.Running,new(1,0,0));
                 Console.WriteLine("正在启动服务");
             } 
             sc.Close();

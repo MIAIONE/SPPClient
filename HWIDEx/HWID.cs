@@ -119,7 +119,7 @@ namespace HWIDEx
       0U
         };
 
-        public static string HwidCreateBlock(byte[] arrayHWID, int cbsize)
+        public static string CreateBlock(byte[] arrayHWID, int cbsize)
         {
             byte[] src = new byte[36]
             {
@@ -170,7 +170,7 @@ namespace HWIDEx
             return Convert.ToBase64String(numArray);
         }
 
-        public static byte[] HwidGetCurrentEx()
+        public static byte[] GetCurrentEx()
         {
             int num1 = 0;
             int num2 = 0;

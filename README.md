@@ -1,30 +1,40 @@
-#SPPClient Ò»ÖÖ»ùÓÚHWIDÖ±½Ó¼¤»îÏµÍ³µÄ¹¤¾ß
-A tool based on HWID direct activation of the system
+# SPPClient ä¸€ç§åŸºäºŽHWIDç›´æŽ¥æ¿€æ´»ç³»ç»Ÿçš„å·¥å…·
+## A tool based on HWID direct activation of the system
 
-##Ö§³Ö£¨Support£©
-½öÏÞRetail Channel£¨ÁãÊÛ°æ£©£¬²»Ö§³Öserver°æ±¾ºÍkms
-¡ï¡î¡ï¡î¡ï¡î¡ï¡î¡ï¡î¡ï¡î¡ï¡î¡ï¡î¡ï¡î¡ï¡î¡ï¡î¡ï¡î¡ï¡î¡ï¡î¡ï¡î¡ï¡î¡ï¡î
-¿É×ÔÐÐcloneÊµÏÖ£¬KMS,GLVKµÄ´úÂëÀïÃæÖ»ÊÇ±»×¢ÊÍÁË
-²»¹ýtkaÄ£Ê½ºÍAD¼¤»îÓÉÓÚÌØÊâ£¬²¢Î´ÊµÏÖÏà¹Øslmgr¹¦ÄÜ
-ÇëÓÐvbs¹¦µ×µÄ×ÔÐÐÖØÐ´
-¡ï¡î¡ï¡î¡ï¡î¡ï¡î¡ï¡î¡ï¡î¡ï¡î¡ï¡î¡ï¡î¡ï¡î¡ï¡î¡ï¡î¡ï¡î¡ï¡î¡ï¡î¡ï¡î¡ï¡î
+## æ”¯æŒï¼ˆSupportï¼‰
+ä»…é™Retail Channelï¼ˆé›¶å”®ç‰ˆï¼‰ï¼Œä¸æ”¯æŒserverç‰ˆæœ¬å’Œkms
 
-##¼¼ÊõÏ¸½Ú£¨Technical details£©
-SPPClient Í¨¹ý´Óµ×²ãslc.dll,setupapi.dll,hid.dllµÈµ×²ãapiÖ±½ÓÊµÏÖHWIDµÄ»ñÈ¡£¬²»ÔÙÑéÖ¤µ±Ç°¼¤»î×´Ì¬
-HWIDÀàÊ¹ÓÃÁËHwidApi£¬HwidApiÀ´×Ô@laommsµÄ¶þ½øÖÆÎÄ¼þ·´±àÒë£¬·´±àÒë¹¤¾ßÊ¹ÓÃde4dot·´»ìÏý£¬dnSpyÓÕÆ­µ÷ÊÔÊÍ·Ådll£¬dotPeek½øÐÐ·´±àÒë+ÐÞ¸´
+â˜…â˜†â˜…â˜†â˜…â˜†â˜…â˜†â˜…â˜†â˜…â˜†â˜…â˜†â˜…â˜†â˜…â˜†â˜…â˜†â˜…â˜†â˜…â˜†â˜…â˜†â˜…â˜†â˜…â˜†â˜…â˜†â˜…â˜†
 
-´«Í³Êý×Ö¼¤»îÈí¼þ£ºÀûÓÃgatherosstateÔÚWIN7ÏÂ»ñµÃÃâ·ÑÉý¼¶Ðí¿ÉÂ©¶´£¬Í¨¹ýÐ´SYSTEM\Tokens×¢²á±íÖµ£¬²¢Ç¿ÐÐÓÃAppLayersÄ£ÄâWIN7RTM¼æÈÝÄ£Ê½ÔËÐÐ£¬Í¬Ê±ÀûÓÃÆÆ½âµÄslc.dll£¬ÆÆ³ýhwid»ñÈ¡ÒòÎ´¼¤»î»ñÈ¡²»µ½ÕýÈ·hwidµÄÇé¿ö£¬×ÛºÏÆðÀ´ÐÎ³ÉÃÅÆ±£¬ÔÚ´ËÖ®Ç°ÏÈ°²×°ÏµÍ³SKU Update Key£¬Í¨¹ý¸ÃKey¿ÉÊµÏÖÈÎÒâÏµÍ³°æ±¾×ª»»£¬È»ºóÀûÓÃclipup.exe°²×°Æ­È¡µÄÊý×ÖÖ¤Êé£¬×îºóslmgr -ato¼¤»îÏµÍ³
-sppclient£º³¹µ×ÆÆ³ýHWIDÏÞÖÆ£¬ËæÒâÉú³ÉÐí¿ÉÖ¤£¬ÖØÐ´slmgrÔÚC#ÄÚ²¿µÄÊµÏÖ£¬Ö±½Óµ÷ÓÃWMI°²×°Key£¬²»ÔÙÓÐÒòÓÃprocess»òcscriptÔËÐÐ´øÀ´µÄÔËÐÐ¹ý³ÌÊ±¼ä²»È·¶¨£¬½á¹ûÄÑ»ñÈ¡£¬±äÁ¿¶àµÈÎÊÌâ
+å¯è‡ªè¡Œcloneå®žçŽ°ï¼ŒKMS,GLVKçš„ä»£ç é‡Œé¢åªæ˜¯è¢«æ³¨é‡Šäº†
 
-##·¨ÂÉÉùÃ÷£¨Legal Notices£©
-±¾³ÌÐò½ö¹©¿ÆÑ§ÑÐ¾¿Ö®ÓÃÍ¾£¬ÇëÔÚÏÂÔØºó72hÄÚ×ÔÐÐÉ¾³ý£¬±¾ÏîÄ¿ÎªºÏ·¨µÄÄæÏò¹¤³Ì£¬²»Éæ¼°ÈÎºÎÎ¢Èí¼¤»îÏà¹Ø´úÂë
-Î¢ÈíÈçÓÐÉ¾³ýÐèÒª£¬ÇëÏòÎÒGithubµÄÓÊÏä·¢ËÍÓÊ¼þ£¬½«ÔÚ7¸ö¹¤×÷ÈÕÄÚÍê³É£»
+ä¸è¿‡tkaæ¨¡å¼å’ŒADæ¿€æ´»ç”±äºŽç‰¹æ®Šï¼Œå¹¶æœªå®žçŽ°ç›¸å…³slmgråŠŸèƒ½
 
-##ÒýÓÃ£¨References£©
-²¿·Ö´úÂë²Î¿¼HwidApi£¬@laomms:gatherosstate C#ÊµÏÖ
+è¯·æœ‰vbsåŠŸåº•çš„è‡ªè¡Œé‡å†™
 
-#ÏÂÔØ£¨Download£©
-²»ÔÙÏòReleases·¢²¼À¶×àÔÆÁ´½Ó
-¸ÄÎª´Ë´¦£ºhttps://miaione.lanzoum.com/b09ba8dli
-        ÃÜÂë:sppc
-Á´½ÓÊ§Ð§ÇëÌá½»issues£¬»á¼°Ê±²¹Á´½Ó
+â˜…â˜†â˜…â˜†â˜…â˜†â˜…â˜†â˜…â˜†â˜…â˜†â˜…â˜†â˜…â˜†â˜…â˜†â˜…â˜†â˜…â˜†â˜…â˜†â˜…â˜†â˜…â˜†â˜…â˜†â˜…â˜†â˜…â˜†
+
+## æŠ€æœ¯ç»†èŠ‚ï¼ˆTechnical detailsï¼‰
+SPPClient é€šè¿‡ä»Žåº•å±‚slc.dll,setupapi.dll,hid.dllç­‰åº•å±‚apiç›´æŽ¥å®žçŽ°HWIDçš„èŽ·å–ï¼Œä¸å†éªŒè¯å½“å‰æ¿€æ´»çŠ¶æ€
+HWIDç±»ä½¿ç”¨äº†HwidApiï¼ŒHwidApiæ¥è‡ª@laommsçš„äºŒè¿›åˆ¶æ–‡ä»¶åç¼–è¯‘ï¼Œåç¼–è¯‘å·¥å…·ä½¿ç”¨de4dotåæ··æ·†ï¼ŒdnSpyè¯±éª—è°ƒè¯•é‡Šæ”¾dllï¼ŒdotPeekè¿›è¡Œåç¼–è¯‘+ä¿®å¤
+
+ä¼ ç»Ÿæ•°å­—æ¿€æ´»è½¯ä»¶ï¼šåˆ©ç”¨gatherosstateåœ¨WIN7ä¸‹èŽ·å¾—å…è´¹å‡çº§è®¸å¯æ¼æ´žï¼Œé€šè¿‡å†™SYSTEM\Tokensæ³¨å†Œè¡¨å€¼ï¼Œå¹¶å¼ºè¡Œç”¨AppLayersæ¨¡æ‹ŸWIN7RTMå…¼å®¹æ¨¡å¼è¿è¡Œï¼ŒåŒæ—¶åˆ©ç”¨ç ´è§£çš„slc.dllï¼Œç ´é™¤hwidèŽ·å–å› æœªæ¿€æ´»èŽ·å–ä¸åˆ°æ­£ç¡®hwidçš„æƒ…å†µï¼Œç»¼åˆèµ·æ¥å½¢æˆé—¨ç¥¨ï¼Œåœ¨æ­¤ä¹‹å‰å…ˆå®‰è£…ç³»ç»ŸSKU Update Keyï¼Œé€šè¿‡è¯¥Keyå¯å®žçŽ°ä»»æ„ç³»ç»Ÿç‰ˆæœ¬è½¬æ¢ï¼Œç„¶åŽåˆ©ç”¨clipup.exeå®‰è£…éª—å–çš„æ•°å­—è¯ä¹¦ï¼Œæœ€åŽslmgr -atoæ¿€æ´»ç³»ç»Ÿ
+
+sppclientï¼šå½»åº•ç ´é™¤HWIDé™åˆ¶ï¼Œéšæ„ç”Ÿæˆè®¸å¯è¯ï¼Œé‡å†™slmgråœ¨C#å†…éƒ¨çš„å®žçŽ°ï¼Œç›´æŽ¥è°ƒç”¨WMIå®‰è£…Keyï¼Œä¸å†æœ‰å› ç”¨processæˆ–cscriptè¿è¡Œå¸¦æ¥çš„è¿è¡Œè¿‡ç¨‹æ—¶é—´ä¸ç¡®å®šï¼Œç»“æžœéš¾èŽ·å–ï¼Œå˜é‡å¤šç­‰é—®é¢˜
+
+## æ³•å¾‹å£°æ˜Žï¼ˆLegal Noticesï¼‰
+æœ¬ç¨‹åºä»…ä¾›ç§‘å­¦ç ”ç©¶ä¹‹ç”¨é€”ï¼Œè¯·åœ¨ä¸‹è½½åŽ72hå†…è‡ªè¡Œåˆ é™¤ï¼Œæœ¬é¡¹ç›®ä¸ºåˆæ³•çš„é€†å‘å·¥ç¨‹ï¼Œä¸æ¶‰åŠä»»ä½•å¾®è½¯æ¿€æ´»ç›¸å…³ä»£ç 
+
+å¾®è½¯å¦‚æœ‰åˆ é™¤éœ€è¦ï¼Œè¯·å‘æˆ‘Githubçš„é‚®ç®±å‘é€é‚®ä»¶ï¼Œå°†åœ¨7ä¸ªå·¥ä½œæ—¥å†…å®Œæˆï¼›
+
+## å¼•ç”¨ï¼ˆReferencesï¼‰
+éƒ¨åˆ†ä»£ç å‚è€ƒHwidApiï¼Œ@laomms:gatherosstate C#å®žçŽ°
+
+# ä¸‹è½½ï¼ˆDownloadï¼‰
+ä¸å†å‘Releaseså‘å¸ƒè“å¥äº‘é“¾æŽ¥
+
+æ”¹ä¸ºæ­¤å¤„ï¼šhttps://miaione.lanzoum.com/b09ba8dli
+
+å¯†ç :sppc
+
+é“¾æŽ¥å¤±æ•ˆè¯·æäº¤issuesï¼Œä¼šåŠæ—¶è¡¥é“¾æŽ¥

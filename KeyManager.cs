@@ -1,4 +1,4 @@
-﻿using static SPPClient.Management;
+﻿global using static SPPClient.Management;
 
 namespace SPPClient
 {
@@ -111,34 +111,44 @@ namespace SPPClient
 
         public bool GetLicenseStatus()
         {
-            var objService = GetServiceObject("Version");
-            objService.Method("RefreshLicenseStatus");
-            foreach (ManagementObject objProduct in GetProductCollection(ProductIsPrimarySkuSelectClause + ", LicenseStatus", PartialProductKeyNonNullWhereClause))
+            try
             {
-                var bCheckProductForCommand = CheckProductForCommand(objProduct, "");
-                if (bCheckProductForCommand)
+                var objService = GetServiceObject("Version");
+                objService.Method("RefreshLicenseStatus");
+                foreach (ManagementObject objProduct in GetProductCollection(ProductIsPrimarySkuSelectClause + ", LicenseStatus", PartialProductKeyNonNullWhereClause))
                 {
-                    var strDescription = objProduct.GetProperty<string>("Description");
-                    var licenseStatus = objProduct.GetProperty<uint>("LicenseStatus") == 1;
-                    if (strDescription.ToUpper().IndexOf("WINDOWS") != -1)
+                    var bCheckProductForCommand = CheckProductForCommand(objProduct, "");
+                    if (bCheckProductForCommand)
                     {
-                        return licenseStatus;
+                        var strDescription = objProduct.GetProperty<string>("Description");
+                        var licenseStatus = objProduct.GetProperty<uint>("LicenseStatus") == 1;
+                        if (strDescription.ToUpper().IndexOf("WINDOWS") != -1)
+                        {
+                            return licenseStatus;
+                        }
                     }
                 }
+                return false;
             }
-            return false;
+            catch
+            {
+                return false;
+            }
         }
 
         public bool InstallLicense(string licFilePath)
         {
             try
             {
-                if (File.Exists(licFilePath))
+                if (Directory.Exists(Path.GetFullPath(licFilePath)))
                 {
-                    var LicenseData = File.ReadAllText(licFilePath);
-                    var objService = GetServiceObject("Version");
-                    objService.Method("InstallLicense", LicenseData);
-                    return true;
+                    if (File.Exists(licFilePath))
+                    {
+                        var LicenseData = File.ReadAllText(licFilePath);
+                        var objService = GetServiceObject("Version");
+                        objService.Method("InstallLicense", LicenseData);
+                        return true;
+                    }
                 }
                 return false;
             }
@@ -207,7 +217,7 @@ namespace SPPClient
                     }
                     if (objTarget.GetProperty<string>("KeyManagementServiceMachine") != "")
                     {
-                        Console.WriteLine("警告：在设置KMS服务器时发现已经存在KMS域服务器，现在的设定将覆盖域服务器的相关设定，当前KMS服务器（" + Name + ":" + Port + "）将被用于激活");
+                        WriteLine("警告：在设置KMS服务器时发现已经存在KMS域服务器，现在的设定将覆盖域服务器的相关设定，当前KMS服务器（" + Name + ":" + Port + "）将被用于激活", ConsoleColor.White, ConsoleColor.DarkYellow);
                     }
                     return true;
                 }
@@ -269,7 +279,7 @@ namespace SPPClient
                     var iIsPrimaryWindowsSku = GetIsPrimaryWindowsSKU(objProduct);
                     if (iIsPrimaryWindowsSku == 2)
                     {
-                        Console.WriteLine("警告：当前KEY对应SKU未知，可能安装失败！");
+                        WriteLine("警告：当前KEY对应SKU未知，可能安装失败！", ConsoleColor.White, ConsoleColor.DarkYellow);
                     }
                     if (IsKmsServer(strDescription))
                     {
@@ -338,7 +348,7 @@ namespace SPPClient
                         var iIsPrimaryWindowsSku = GetIsPrimaryWindowsSKU(objProduct);
                         if (iIsPrimaryWindowsSku == 2)
                         {
-                            Console.WriteLine("警告：当前KEY对应SKU未知，可能安装失败！");
+                            WriteLine("警告：当前KEY对应SKU未知，可能安装失败！", ConsoleColor.White, ConsoleColor.DarkYellow);
                         }
                         objProduct.Method("UninstallProductKey");
                         objService.Method("RefreshLicenseStatus");
@@ -413,12 +423,12 @@ namespace SPPClient
                         var iIsPrimaryWindowsSku = GetIsPrimaryWindowsSKU(objProduct);
                         if ((iIsPrimaryWindowsSku == 2) & (strActivationID == ""))
                         {
-                            Console.WriteLine("警告：当前KEY对应SKU未知，可能安装失败！");
+                            WriteLine("警告：当前KEY对应SKU未知，可能安装失败！", ConsoleColor.White, ConsoleColor.DarkYellow);
                         }
-                        //Console.WriteLine(objProduct.GetProperty<object>("VLActivationTypeEnabled").ToString());
+                        //WriteLine(objProduct.GetProperty<object>("VLActivationTypeEnabled").ToString());
                         if (objProduct.GetProperty<object>("VLActivationTypeEnabled").ToString() == "3") //无故抛出uint2int异常
                         {
-                            Console.WriteLine("错误：此系统已配置为仅限基于令牌的激活，当前激活仅支持零售模式、KMS，请尝试更改激活类型设置");
+                            WriteLine("错误：此系统已配置为仅限基于令牌的激活，当前激活仅支持零售模式、KMS，请尝试更改激活类型设置（重置激活类型）", ConsoleColor.White, ConsoleColor.DarkRed);
                             return false;
                         }
                         var strDescription = objProduct.GetProperty<string>("Description");
@@ -462,14 +472,40 @@ namespace SPPClient
             {
                 var strOemFolder = Environment.SystemDirectory + @"\oem";
                 var strSppTokensFolder = Environment.SystemDirectory + @"\spp\tokens";
+
                 foreach (string sppfile in GetAllXrmMSFiles(strSppTokensFolder))
                 {
-                    InstallLicense(sppfile);
+                    //WriteLine(sppfile);
+                    try
+                    {
+                        WriteLine("正在安装SPP-Licenses:" + sppfile);
+                        InstallLicense(sppfile);
+                        WriteLine("安装成功", ConsoleColor.White, ConsoleColor.DarkGreen);
+                    }
+                    catch
+                    {
+                        WriteLine("安装失败", ConsoleColor.White, ConsoleColor.DarkRed);
+                        continue;
+                    }
                 }
-                foreach (string oemfile in GetAllXrmMSFiles(strOemFolder))
+                if (Directory.Exists(strOemFolder))
                 {
-                    InstallLicense(oemfile);
+                    foreach (string oemfile in GetAllXrmMSFiles(strOemFolder))
+                    {
+                        try
+                        {
+                            WriteLine("正在安装OEM-Licenses:" + oemfile);
+                            InstallLicense(oemfile);
+                            WriteLine("安装成功", ConsoleColor.White, ConsoleColor.Green);
+                        }
+                        catch
+                        {
+                            WriteLine("安装失败", ConsoleColor.White, ConsoleColor.DarkRed);
+                            continue;
+                        }
+                    }
                 }
+
                 return true;
             }
             catch
@@ -540,6 +576,22 @@ namespace SPPClient
 
     internal static class Management
     {
+        public static void WriteLine(string str = "", ConsoleColor Forec = ConsoleColor.White, ConsoleColor Backc = ConsoleColor.Black)
+        {
+            Console.ForegroundColor = Forec;
+            Console.BackgroundColor = Backc;
+            Console.WriteLine(str);
+            Console.ResetColor();
+        }
+
+        public static void Write(string str = "", ConsoleColor Forec = ConsoleColor.White, ConsoleColor Backc = ConsoleColor.Black)
+        {
+            Console.ForegroundColor = Forec;
+            Console.BackgroundColor = Backc;
+            Console.Write(str);
+            Console.ResetColor();
+        }
+
         public static void Method(this ManagementObject obj, string methodName, params object[] objParams)
         {
             if (obj != null)
@@ -572,55 +624,55 @@ namespace SPPClient
                 switch (c.Status)
                 {
                     case ManagementStatus.Failed:
-                        Console.WriteLine(signStr + "失败");
+                        WriteLine(signStr + "失败");
                         break;
 
                     case ManagementStatus.AccessDenied:
-                        Console.WriteLine(signStr + "操作被禁止");
+                        WriteLine(signStr + "操作被禁止");
                         break;
 
                     case ManagementStatus.PrivilegeNotHeld:
-                        Console.WriteLine(signStr + "权限不足");
+                        WriteLine(signStr + "权限不足");
                         break;
 
                     case ManagementStatus.ServerTooBusy:
-                        Console.WriteLine(signStr + "服务正忙");
+                        WriteLine(signStr + "服务正忙");
                         break;
 
                     case ManagementStatus.Timedout:
-                        Console.WriteLine(signStr + "操作超时");
+                        WriteLine(signStr + "操作超时");
                         break;
 
                     case ManagementStatus.Unexpected:
-                        Console.WriteLine(signStr + "未知错误");
+                        WriteLine(signStr + "未知错误");
                         break;
 
                     case ManagementStatus.ProviderFailure:
-                        Console.WriteLine(signStr + "服务操作失败");
+                        WriteLine(signStr + "服务操作失败");
                         break;
 
                     case ManagementStatus.InvalidParameter:
-                        Console.WriteLine(signStr + "无效参数");
+                        WriteLine(signStr + "无效参数");
                         break;
 
                     case ManagementStatus.InitializationFailure:
-                        Console.WriteLine(signStr + "初始化错误");
+                        WriteLine(signStr + "初始化错误");
                         break;
 
                     case ManagementStatus.IllegalNull:
-                        Console.WriteLine(signStr + "非法引用");
+                        WriteLine(signStr + "非法引用");
                         break;
 
                     case ManagementStatus.IllegalOperation:
-                        Console.WriteLine(signStr + "非法操作");
+                        WriteLine(signStr + "非法操作");
                         break;
 
                     case ManagementStatus.NoError:
-                        Console.WriteLine(signStr + "成功");
+                        WriteLine(signStr + "成功");
                         break;
 
                     default:
-                        Console.WriteLine(signStr + "未知错误");
+                        WriteLine(signStr + "未知错误");
                         break;
                 }
             });

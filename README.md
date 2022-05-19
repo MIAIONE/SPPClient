@@ -1,6 +1,12 @@
 # SPPClient 一种基于HWID直接激活系统的工具
 ## A tool based on HWID direct activation of the system
 
+## 更新日志&公告（Public Logs）
+
+0.1.3：增加了SYSTEM用户启动模式（请先关闭安全软件），大量重写slmgr功能
+
+0.1.2：修复了sid错误的问题
+
 ## 支持（Support）
 仅限Retail Channel（零售版），不支持server版本和kms
 

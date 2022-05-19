@@ -189,7 +189,7 @@ namespace M2.NSudo
                     "NSudoCreateProcess");
             if(CurrentDirectory == null)
             {
-                CurrentDirectory = AppDomain.CurrentDomain.BaseDirectory + "\\";
+                CurrentDirectory =Path.GetFullPath(Environment.ProcessPath) + "\\";
             }
              
             int hr = NSudoCreateProcessInstance(
@@ -206,6 +206,33 @@ namespace M2.NSudo
             {
                 throw new ExternalException("-", hr);
             }
+        }
+        public static bool IsSYSTEM()
+        {
+            return GetProcessUserName(Environment.ProcessId) == "SYSTEM";
+        }
+        public static string GetProcessUserName(int pID)
+        {
+            string text1 = null;
+            SelectQuery query1 = new("Select * from Win32_Process WHERE processID=" + pID);
+            ManagementObjectSearcher searcher1 = new ManagementObjectSearcher(query1);
+            try
+            {
+                foreach (ManagementObject disk in searcher1.Get())
+                {
+                    ManagementBaseObject inPar = null;
+                    ManagementBaseObject outPar = null;
+                    inPar = disk.GetMethodParameters("GetOwner");
+                    outPar = disk.InvokeMethod("GetOwner", inPar, null);
+                    text1 = outPar["User"].ToString();
+                    break;
+                }
+            }
+            catch
+            {
+                text1 = "SYSTEM";
+            }
+            return text1;
         }
     }
 }

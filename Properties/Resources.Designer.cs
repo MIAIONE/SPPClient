@@ -89,5 +89,18 @@ namespace SPPClient.Properties {
                 return ((byte[])(obj));
             }
         }
+        
+        /// <summary>
+        ///   查找类似 ....//////////....///////////....///////////..
+        ///...///...........///.....///....///.....///...
+        ///..///////////...///////////....///////////....
+        ///.........///...///............///.............
+        ///.//////////...///............///.............. 的本地化字符串。
+        /// </summary>
+        internal static string SPPClientLogo {
+            get {
+                return ResourceManager.GetString("SPPClientLogo", resourceCulture);
+            }
+        }
     }
 }

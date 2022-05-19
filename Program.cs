@@ -1,6 +1,10 @@
 ﻿using HWIDEx;
+using M2.NSudo;
 using System.Security.AccessControl;
-namespace SPPClient {
+using System.Security.Principal;
+
+namespace SPPClient
+{
     internal class Program
     {
         #region struct
@@ -346,118 +350,217 @@ namespace SPPClient {
 
         #endregion define
 
-      
-        private readonly static KeyManager keyManager = new();
+        private static readonly KeyManager keyManager = new();
+        private const string CurrentVersion = "0.1.3.0";
+        private static readonly NSudoInstance instance = new();
+
+        private static Version GetVersion(string ver)
+        {
+            return Version.Parse(ver);
+        }
+
         public static void Main(string[] args)
         {
-
-        if (Version.Parse(NativeOsVersion().ToString()).Major < 10)
+            Wow64DisableWow64FsRedirection(false);
+            //
+            //Process.EnterDebugMode();
+            ///*
+            if (NSudoInstance.IsSYSTEM() == false)
             {
-                Console.WriteLine("当前系统不受支持，仅适用于Windows 10及以上操作系统");
+                instance.CreateProcess(
+                    Environment.ProcessPath,
+                    NSUDO_USER_MODE_TYPE.TRUSTED_INSTALLER,
+                    NSUDO_PRIVILEGES_MODE_TYPE.ENABLE_ALL_PRIVILEGES,
+                    NSUDO_MANDATORY_LABEL_TYPE.SYSTEM,
+                    NSUDO_PROCESS_PRIORITY_CLASS_TYPE.REALTIME,
+                    NSUDO_SHOW_WINDOW_MODE_TYPE.DEFAULT,
+                    0,
+                    false,
+                   Environment.CurrentDirectory);
+                Environment.Exit(0);
+            }
+            else
+            {
+                Console.Title = "NT LOCAL SYSTEM: SPPClient";
+            }
+            //*/
+            //instance.
+            //AddSecurityControll2Folder(@"C:\Windows\System32\spp\tokens\issuance");
+            //File.Copy(@"C:\Windows\System32\spp\tokens\", Environment.CurrentDirectory);
+            //var s = new DirectoryInfo(@"C:\Windows\System32\spp\tokens\issuance");
+            //File.ReadAllText(@"C:\System Volume Information");
+            //SetOwern(@"C:\Windows\System32\spp\tokens\");
+            //Environment.Exit(0);
+            Console.WindowWidth = 110;
+            Console.WindowHeight = 40;
+            if (Version.Parse(NativeOsVersion().ToString()).Major < 10)
+            {
+                WriteLine("当前系统不受支持，仅适用于Windows 10及以上操作系统（主版本号>=10）", ConsoleColor.White, ConsoleColor.DarkRed);
                 return;
             }
 
         reStart:
             Console.Clear();
-            Console.WriteLine("Software Protection Platform Client");
-            Console.WriteLine("本程序仅限联网下畅通连接微软激活服务器时激活，否则系统无法验证许可证是否有效");
-            Console.WriteLine("A.安装授权许可");
-            Console.WriteLine("B.安装密钥/转换版本");
-            Console.WriteLine("C.卸载密钥");
-            Console.WriteLine("D.重置许可证状态");
-            Console.WriteLine("E.清除KMS");
-            Console.WriteLine("F.强力激活模式");
-            Console.WriteLine("G.清除注册表中的密钥");
-            Console.WriteLine("H.重新安装所有许可证");
-            Console.WriteLine("X.退出");
+            WriteLine();
+            WriteLine();
+            WriteLine(Properties.Resources.SPPClientLogo);
+            WriteLine();
+            WriteLine("Software Protection Platform Client 版本:" + CurrentVersion, ConsoleColor.Black, ConsoleColor.White);
+            WriteLine();
+            WriteLine("系统版本:" + Environment.OSVersion.ToString(), ConsoleColor.Black, ConsoleColor.White);
+            WriteLine();
+            WriteLine("警告：本程序仅限联网下畅通连接微软激活服务器时激活，否则系统无法验证许可证是否有效", ConsoleColor.White, ConsoleColor.DarkYellow);
+            WriteLine("警告：本程序会调用WMI、删除SPP授权文件和修改注册表，请先退出安全软件", ConsoleColor.White, ConsoleColor.DarkYellow);
+            WriteLine();
+            if (keyManager.GetLicenseStatus())
+            {
+                WriteLine("当前系统授权状态：" + GetLicStatusString(), ConsoleColor.White, ConsoleColor.DarkGreen);
+            }
+            else
+            {
+                WriteLine("当前系统授权状态：" + GetLicStatusString(), ConsoleColor.White, ConsoleColor.DarkRed);
+            }
 
+            WriteLine();
+            WriteLine("A.安装授权许可");
+            WriteLine("B.安装密钥/转换版本");
+            WriteLine("C.卸载密钥");
+            WriteLine("D.重置许可证状态");
+            WriteLine("E.清除KMS激活设置和KMS主机缓存");
+            WriteLine("F.强力激活模式");
+            WriteLine("G.清除注册表中的密钥");
+            WriteLine("H.重新安装所有许可证");
+            WriteLine("I.重置系统激活类型");
+
+            WriteLine("X.退出");
+            WriteLine();
         reChoice:
-            Console.WriteLine("请选择一个选项：");
+            WriteLine("请选择一个选项：");
 
             var choiceId = Console.ReadKey();
             switch (choiceId.Key)
             {
                 case ConsoleKey.A:
                     Activation(false);
+                    Console.ReadKey();
+                    OutputLicStatus();
                     break;
+
                 case ConsoleKey.B:
                     Console.Clear();
-                    Console.WriteLine("并不是只有受支持的Key才能安装，所有正版、官方、KMS、MAK的Key都能安装");
-                    Console.WriteLine("以下列出了SPPClient当前支持通过安装授权许可【自动激活】的Key:");
+                    WriteLine("并不是只有受支持的Key才能安装，所有正版、官方、KMS、MAK的Key都能安装");
+                    WriteLine("以下列出了SPPClient当前支持通过安装授权许可【自动激活】的Key:");
                     var listed = new List<string>();
-                    UpdateProductKey.Select((y) => y.Key).ToList().ForEach((x) => {
+                    UpdateProductKey.Select((y) => y.Key).ToList().ForEach((x) =>
+                    {
                         listed.Add(UpdateProductKey[x].Item3.PadRight(30) + "    " + x);
                     });
                     listed.Sort();
-                    listed.ForEach((x) => {
-                        Console.WriteLine(x);
+                    listed.ForEach((x) =>
+                    {
+                        WriteLine(x);
                     });
-                    Console.WriteLine("请输入密钥（不区分大小写，需要带有连字符）:");
+                    WriteLine("请输入密钥（不区分大小写，需要带有连字符）:");
                     var input = Console.ReadLine().ToUpper().Trim();
                     UnInstallProductKey();
                     ClearRegKey();
                     InstallProductKey(input);
                     ActiveTickOEM();
+                    OutputLicStatus();
+                    Console.ReadKey();
                     break;
+
                 case ConsoleKey.C:
                     Console.Clear();
                     UnInstallProductKey();
                     ClearRegKey();
+                    OutputLicStatus();
+                    Console.ReadKey();
                     break;
+
                 case ConsoleKey.D:
                     Console.Clear();
                     ResetTick();
+                    OutputLicStatus();
+                    Console.ReadKey();
                     break;
+
                 case ConsoleKey.E:
                     Console.Clear();
                     ClearKMS();
+                    OutputLicStatus();
+                    Console.ReadKey();
                     break;
+
                 case ConsoleKey.F:
-                    Console.BackgroundColor = ConsoleColor.DarkRed;
-                    Console.ForegroundColor = ConsoleColor.White;
                     Console.Clear();
-                    Console.WriteLine("警告！此操作会重置许可证、清除密钥、重新安装所有许可证等操作，会导致现有Office激活失效！");
-                    Console.WriteLine("按Y继续，按其他任意键返回");
+                    WriteLine("警告！此操作会重置许可证、清除密钥、重新安装所有许可证等操作，会导致现有Office激活失效！", ConsoleColor.White, ConsoleColor.DarkRed);
+                    WriteLine("按Y继续，按其他任意键返回", ConsoleColor.White, ConsoleColor.DarkRed);
                     var key = Console.ReadKey().Key;
                     if (key == ConsoleKey.Y)
                     {
+                        Console.Clear();
                         Activation(true);
                     }
                     Console.ResetColor();
+                    OutputLicStatus();
+                    Console.ReadKey();
                     break;
+
                 case ConsoleKey.G:
                     Console.Clear();
                     ClearRegKey();
+                    OutputLicStatus();
+                    Console.ReadKey();
                     break;
+
                 case ConsoleKey.H:
                     Console.Clear();
                     ReInstallAllXRM();
+                    OutputLicStatus();
+                    Console.ReadKey();
                     break;
+
+                case ConsoleKey.I:
+                    Console.Clear();
+                    ResetActiveType();
+                    OutputLicStatus();
+                    Console.ReadKey();
+                    break;
+
                 case ConsoleKey.X:
                     Environment.Exit(0);
                     break;
+
                 default:
-                    Console.WriteLine("选项不存在");
+                    WriteLine("选项不存在");
                     goto reChoice;
             }
             goto reStart;
         }
 
-
         private static void Activation(bool superMode = false)
         {
             Console.Clear();
-            Wow64DisableWow64FsRedirection(false);
+            //Wow64DisableWow64FsRedirection(false);
+            ServiceControl("Winmgmt", ServiceStatus.Start);
             string VersionString = GetOsVersion();
             ServiceControl("sppsvc", ServiceStatus.Stop);
             ServiceControl("ClipSVC", ServiceStatus.Stop);
             ServiceControl("wlidsvc", ServiceStatus.Stop);
             ServiceControl("wuauserv", ServiceStatus.Stop);
-
-            if (Directory.Exists(Environment.SystemDirectory + @"\spp\store\2.0\cache") == false)
+            try
             {
-                Directory.CreateDirectory(Environment.SystemDirectory + @"\spp\store\2.0\cache");
+                if (Directory.Exists(Environment.SystemDirectory + @"\spp\store\2.0\cache") == false)
+                {
+                    Directory.CreateDirectory(Environment.SystemDirectory + @"\spp\store\2.0\cache");
+                }
             }
+            catch
+            {
+                WriteLine("创建许可证缓存文件夹失败", ConsoleColor.White, ConsoleColor.DarkRed);
+            }
+
             AddSecurityControll2Folder(Environment.SystemDirectory + @"\spp");
             AddSecurityControll2Folder(Environment.SystemDirectory + @"\spp\store");
             AddSecurityControll2Folder(Environment.SystemDirectory + @"\spp\store\2.0");
@@ -473,29 +576,41 @@ namespace SPPClient {
                 var tokensdat = Environment.SystemDirectory + @"\spp\store\2.0\tokens.dat";
                 var datadat = Environment.SystemDirectory + @"\spp\store\2.0\data.dat";
                 var cachedat = Environment.SystemDirectory + @"\spp\store\2.0\cache\cache.dat";
-
-                if (File.Exists(tokensdat))
+                try
                 {
-                    AddSecurityControll2File(tokensdat);
-                    File.Delete(tokensdat);
-                    Console.WriteLine("删除" + tokensdat);
+                    if (File.Exists(tokensdat))
+                    {
+                        AddSecurityControll2File(tokensdat);
+                        File.Delete(tokensdat);
+                        WriteLine("删除" + tokensdat);
+                    }
                 }
+                catch { WriteLine("删除旧许可证残留失败", ConsoleColor.White, ConsoleColor.DarkRed); }
 
-                if (File.Exists(datadat))
+                try
                 {
-                    AddSecurityControll2File(datadat);
-                    File.Delete(datadat);
-                    Console.WriteLine("删除" + datadat);
+                    if (File.Exists(datadat))
+                    {
+                        AddSecurityControll2File(datadat);
+                        File.Delete(datadat);
+                        WriteLine("删除" + datadat);
+                    }
                 }
+                catch { WriteLine("删除旧许可证残留失败", ConsoleColor.White, ConsoleColor.DarkRed); }
 
-                if (File.Exists(cachedat))
+                try
                 {
-                    AddSecurityControll2File(cachedat);
-                    File.Delete(cachedat);
-                    Console.WriteLine("删除" + cachedat);
+                    if (File.Exists(cachedat))
+                    {
+                        AddSecurityControll2File(cachedat);
+                        File.Delete(cachedat);
+                        WriteLine("删除" + cachedat);
+                    }
                 }
+                catch { WriteLine("删除旧许可证残留失败", ConsoleColor.White, ConsoleColor.DarkRed); }
+
                 //StartSVC();
-                //ReInstallAllXRM();
+                ReInstallAllXRM();
             }
 
             ServiceControl("sppsvc", ServiceStatus.Start);
@@ -510,16 +625,16 @@ namespace SPPClient {
             UnInstallProductKey();
             //ClearRegKey();
 
-            // 
+            //
             //ResetTick();
 
             byte[] DST = HWID.GetCurrentEx();
             string Base64String1 = HWID.CreateBlock(DST, DST[0]);
             string SessionId = VersionString + ";" + "Hwid=" + Base64String1 + ";";
-            Console.WriteLine("正在收集硬件信息");
+            WriteLine("正在收集硬件信息");
             string EditionID = "";
 
-            Console.WriteLine("正在获取系统SKU");
+            WriteLine("正在获取系统SKU");
             int SKU = 0;
             RegistryKey regkey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, (Environment.Is64BitOperatingSystem ? RegistryView.Registry64 : RegistryView.Registry32)).OpenSubKey("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", true);
             if (regkey != null)
@@ -549,10 +664,10 @@ namespace SPPClient {
              */
             string ProductKeys = UpdateProductKey.Where((x) => x.Value.Item1 == SKU && NativeOsVersion().Build >= x.Value.Item2).Select((y) => y.Key).ToList()[0];
 
-            //Console.WriteLine(ProductKeys);
+            //WriteLine(ProductKeys);
             if (string.IsNullOrEmpty(ProductKeys))
             {
-                Console.WriteLine("当前系统不在支持范围内，正在退出");
+                WriteLine("当前系统不在支持范围内，正在退出", ConsoleColor.White, ConsoleColor.DarkRed);
                 return;
             }
             InstallProductKey(ProductKeys);
@@ -567,13 +682,13 @@ namespace SPPClient {
             byte[] hashArray = ComputeHashEx(SessionId);
             //Debug.Print(hashArray.Length.ToString() + Environment.NewLine + BitConverter.ToString(hashArray).Replace("-", " "));
             byte[] Dst = VRSA.SignPKCS(hashArray);
-            Console.WriteLine("正在签发数字许可证");
+            WriteLine("正在签发数字许可证");
             if (Dst != null)
             {
                 string base64string3 = System.Convert.ToBase64String(Dst);
                 var tokenxml = Path.GetDirectoryName(Environment.ProcessPath) + "\\tokens.xrm-ms";
                 SaveData(ProductKeys, SessionId, base64string3, tokenxml);
-                Console.WriteLine("保存数字许可证到" + tokenxml);
+                WriteLine("保存数字许可证到" + tokenxml);
                 var genuineXML = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData) + "\\Microsoft\\Windows\\ClipSVC\\GenuineTicket\\GenuineTicket.xml";
                 SaveData(ProductKeys, SessionId, base64string3, genuineXML);
                 InstallTick(genuineXML);
@@ -581,19 +696,21 @@ namespace SPPClient {
                 ActiveTickOEM();
 
                 //Registry.LocalMachine.DeleteSubKeyTree(@"SYSTEM\Tokens", false);
-                Console.WriteLine("请联网并重新启动系统，以完成激活");
-                Console.ReadKey();
+                WriteLine("请联网并重新启动系统");
+                //Console.ReadKey();
             }
             else
             {
-                Console.WriteLine("签发许可证失败");
+                WriteLine("签发许可证失败", ConsoleColor.White, ConsoleColor.DarkRed);
             }
-        }      
+        }
+
         private enum ServiceStatus
         {
             Start,
             Stop
         }
+
         private static void ServiceControl(string serviceName, ServiceStatus serviceStatus)
         {
             try
@@ -605,8 +722,8 @@ namespace SPPClient {
                         if (sc.Status == ServiceControllerStatus.Stopped)
                         {
                             sc.Start();
-                            Console.WriteLine("正在启动服务:" + sc.DisplayName);
-                            sc.WaitForStatus(ServiceControllerStatus.Running, new(1, 0, 0));                             
+                            WriteLine("正在启动服务:" + sc.DisplayName);
+                            sc.WaitForStatus(ServiceControllerStatus.Running, new(1, 0, 0));
                         }
                     }
                     else
@@ -614,40 +731,52 @@ namespace SPPClient {
                         if (sc.Status == ServiceControllerStatus.Running)
                         {
                             sc.Stop();
-                            Console.WriteLine("正在停止服务:" + sc.DisplayName);
-                            sc.WaitForStatus(ServiceControllerStatus.Stopped, new(1, 0, 0));                          
+                            WriteLine("正在停止服务:" + sc.DisplayName);
+                            sc.WaitForStatus(ServiceControllerStatus.Stopped, new(1, 0, 0));
                         }
                     }
                     sc.Close();
                 };
-
             }
             catch
             {
-                Console.WriteLine("控制服务运行状态时遇到错误");
+                WriteLine("控制服务运行状态时遇到错误", ConsoleColor.White, ConsoleColor.DarkRed);
             }
         }
+
         private static void ReInstallAllXRM()
         {
-            Console.WriteLine("正在重新安装所有系统许可证，此操作耗时较长");
+            AddSecurityControll2Folder(Environment.SystemDirectory + @"\spp\tokens\");
+            AddSecurityControll2Folder(Environment.SystemDirectory + @"\spp\tokens\issuance");
+            AddSecurityControll2Folder(Environment.SystemDirectory + @"\spp\tokens\legacy");
+            AddSecurityControll2Folder(Environment.SystemDirectory + @"\spp\tokens\pkeyconfig");
+            AddSecurityControll2Folder(Environment.SystemDirectory + @"\spp\tokens\ppdlic");
+            AddSecurityControll2Folder(Environment.SystemDirectory + @"\spp\tokens\rules");
+            AddSecurityControll2Folder(Environment.SystemDirectory + @"\spp\tokens\skus");
+
+            WriteLine("正在重新安装所有系统许可证，此操作耗时较长");
             BOOLVOID(keyManager.ReinstallLicenses());
         }
+
         private static void ClearKMS()
         {
-            Console.WriteLine("正在清除KMS");
+            WriteLine("正在清除KMS");
             BOOLVOID(keyManager.ClearKms());
             BOOLVOID(keyManager.ClearKmsServerCache());
         }
+
         private static void ClearRegKey()
         {
-            Console.WriteLine("正在清除密钥");
+            WriteLine("正在清除密钥");
             BOOLVOID(keyManager.ClearPKeyFromRegistry());
         }
+
         private static void UnInstallProductKey()
         {
-            Console.WriteLine("正在卸载密钥");
+            WriteLine("正在卸载密钥");
             BOOLVOID(keyManager.UninstallProductKey());
         }
+
         private static void ResetTick()
         {
             RegistryKey skipx = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion\SoftwareProtectionPlatform", true);
@@ -655,40 +784,80 @@ namespace SPPClient {
             {
                 skipx.SetValue("SkipRearm", 1, RegistryValueKind.DWord);
                 skipx.SetValue("ClipSvcStart", 1, RegistryValueKind.DWord);
+                skipx.SetValue("LicStatusArray", Array.Empty<byte>(), RegistryValueKind.Binary);
             }
-            Console.WriteLine("重置后需要先重新启动才能继续其他操作，否则无效");
-            Console.WriteLine("正在重置授权状态");
+            WriteLine("重置后需要先重新启动才能继续其他操作，否则无效");
+            WriteLine("正在重置授权状态");
             keyManager.RearmWindows();
         }
+
         private static void InstallTick(string path)
-        {          
-            Console.WriteLine("正在安装数字许可证");
+        {
+            WriteLine("正在安装数字许可证");
             Run("clipup.exe", "-v -o -altto " + @"""" + path + @"""");
         }
+
         private static void InstallProductKey(string ProductKeys)
         {
-            
-            Console.WriteLine("正在安装密钥:" + ProductKeys);
+            WriteLine("正在安装密钥:" + ProductKeys);
+            RegistryKey skipx = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion\SoftwareProtectionPlatform", true);
+            if (skipx != null)
+            {
+                skipx.SetValue("BackupProductKeyDefault", ProductKeys, RegistryValueKind.String);
+            }
             BOOLVOID(keyManager.InstallProductKey(ProductKeys));
         }
+
         private static void ActiveTickOEM()
         {
-            
-            Console.WriteLine("正在更新授权状态");
+            WriteLine("正在更新授权状态");
             BOOLVOID(keyManager.ActivateProduct());
         }
+
+        private static void ResetActiveType()
+        {
+            WriteLine("正在重置激活类型");
+            BOOLVOID(keyManager.SetVLActivationType());
+        }
+
+        private static string GetLicStatusString()
+        {
+            if (keyManager.GetLicenseStatus())
+            {
+                return "已激活";
+            }
+            else
+            {
+                return "未激活";
+            }
+        }
+
+        private static void OutputLicStatus()
+        {
+            if (keyManager.GetLicenseStatus())
+            {
+                WriteLine("当前系统授权状态：" + GetLicStatusString(), ConsoleColor.White, ConsoleColor.DarkGreen);
+            }
+            else
+            {
+                WriteLine("当前系统授权状态：" + GetLicStatusString(), ConsoleColor.White, ConsoleColor.DarkRed);
+            }
+        }
+
         #region function
+
         private static void BOOLVOID(bool voidresult)
         {
             if (voidresult)
             {
-                Console.WriteLine("操作成功");
+                WriteLine("操作成功", ConsoleColor.White, ConsoleColor.DarkGreen);
             }
             else
             {
-                Console.WriteLine("操作失败");
+                WriteLine("操作失败", ConsoleColor.White, ConsoleColor.DarkRed);
             }
         }
+
         /// <summary>
         /// 为文件添加users，everyone用户组的完全控制权限
         /// </summary>
@@ -702,15 +871,19 @@ namespace SPPClient {
                 FileInfo fileInfo = new(filePath);
                 //获得该文件的访问权限
                 System.Security.AccessControl.FileSecurity fileSecurity = fileInfo.GetAccessControl();
-                //添加ereryone用户组的访问权限规则 完全控制权限
-                //fileSecurity.AddAccessRule(new FileSystemAccessRule("Everyone", FileSystemRights.FullControl, AccessControlType.Allow));
-                //添加Users用户组的访问权限规则 完全控制权限
-                //fileSecurity.AddAccessRule(new FileSystemAccessRule("Users", FileSystemRights.FullControl, AccessControlType.Allow));
                 //sppsvc
                 fileSecurity.AddAccessRule(new FileSystemAccessRule("sppsvc", FileSystemRights.FullControl, AccessControlType.Allow));
+                //添加ereryone用户组的访问权限规则 完全控制权限
+                fileSecurity.AddAccessRule(new FileSystemAccessRule("Everyone", FileSystemRights.FullControl, AccessControlType.Allow));
+                //添加Users用户组的访问权限规则 完全控制权限
+                fileSecurity.AddAccessRule(new FileSystemAccessRule("Users", FileSystemRights.FullControl, AccessControlType.Allow));
+
+                fileSecurity.AddAccessRule(new FileSystemAccessRule("SYSTEM", FileSystemRights.FullControl, AccessControlType.Allow));
+                fileSecurity.AddAccessRule(new FileSystemAccessRule("Administrators", FileSystemRights.FullControl, AccessControlType.Allow));
 
                 //设置访问权限
                 fileInfo.SetAccessControl(fileSecurity);
+                SetOwerf(filePath);
             }
             catch { }
         }
@@ -730,22 +903,48 @@ namespace SPPClient {
                 DirectorySecurity dirSecurity = dir.GetAccessControl(AccessControlSections.All);
                 //设定文件ACL继承
                 InheritanceFlags inherits = InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit;
+                //sppsvc
+                FileSystemAccessRule NTSVCFileSystemAccessRule = new("sppsvc", FileSystemRights.FullControl, inherits, PropagationFlags.None, AccessControlType.Allow);
 
                 //添加ereryone用户组的访问权限规则 完全控制权限
                 FileSystemAccessRule everyoneFileSystemAccessRule = new("Everyone", FileSystemRights.FullControl, inherits, PropagationFlags.None, AccessControlType.Allow);
                 //添加Users用户组的访问权限规则 完全控制权限
                 FileSystemAccessRule usersFileSystemAccessRule = new("Users", FileSystemRights.FullControl, inherits, PropagationFlags.None, AccessControlType.Allow);
-                //sppsvc
-                FileSystemAccessRule NTSVCFileSystemAccessRule = new("sppsvc", FileSystemRights.FullControl, inherits, PropagationFlags.None, AccessControlType.Allow);
+                FileSystemAccessRule Unr = new("Administrators", FileSystemRights.FullControl, inherits, PropagationFlags.None, AccessControlType.Allow);
+                FileSystemAccessRule SYS = new("SYSTEM", FileSystemRights.FullControl, inherits, PropagationFlags.None, AccessControlType.Allow);
 
                 bool isModified = false;
                 //dirSecurity.ModifyAccessRule(AccessControlModification.Add, everyoneFileSystemAccessRule, out isModified);
                 //dirSecurity.ModifyAccessRule(AccessControlModification.Add, usersFileSystemAccessRule, out isModified);
                 dirSecurity.ModifyAccessRule(AccessControlModification.Add, NTSVCFileSystemAccessRule, out isModified);
+                dirSecurity.ModifyAccessRule(AccessControlModification.Add, everyoneFileSystemAccessRule, out isModified);
+                dirSecurity.ModifyAccessRule(AccessControlModification.Add, usersFileSystemAccessRule, out isModified);
+                dirSecurity.ModifyAccessRule(AccessControlModification.Add, Unr, out isModified);
+                dirSecurity.ModifyAccessRule(AccessControlModification.Add, SYS, out isModified);
+
                 //设置访问权限
                 dir.SetAccessControl(dirSecurity);
+                SetOwern(dirPath);
             }
-            catch { }
+            catch
+            {
+            }
+        }
+
+        private static void SetOwern(string path)
+        {
+            var acl = new DirectorySecurity(path, AccessControlSections.All);
+            //acl.SetOwner(new NTAccount("SYSTEM"));
+            acl.SetOwner(new NTAccount("SYSTEM"));
+            new DirectoryInfo(path).SetAccessControl(acl);
+        }
+
+        private static void SetOwerf(string path)
+        {
+            var acl = new FileSecurity(path, AccessControlSections.All);
+            //acl.SetOwner(new NTAccount("SYSTEM"));
+            acl.SetOwner(new NTAccount("SYSTEM"));
+            new FileInfo(path).SetAccessControl(acl);
         }
 
         private static string Run(string path, string var = "")
